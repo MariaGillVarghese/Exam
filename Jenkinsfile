@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                scm checkout
+                checkout scm
                 sh "mvn build"
             }
         }
