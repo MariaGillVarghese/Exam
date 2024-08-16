@@ -16,7 +16,7 @@ pipeline {
     steps {
         script {
             // Catch errors in the test step and mark the build as UNSTABLE if any occur
-            catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+            catchError(buildResult: 'UNSTABLE', message: 'UNSTTest Failed') {
                 // Run the Maven tests
                 sh "mvn test"
             }
