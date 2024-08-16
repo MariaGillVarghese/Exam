@@ -4,37 +4,50 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build') {
             steps {
-                sh 'which mvn'          // Check if Maven is installed
-                sh 'mvn --version'
-                checkout scm
-                sh "mvn package"
+                sh 'mvn clean install'
             }
         }
+
         stage('Test') {
-    steps {
-        script {
-            // Catch errors in the test step and mark the build as UNSTABLE if any occur
-            catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE', message: 'Test Failed') {
-                // Run the Maven tests
-                sh "mvn test"
+            steps {
+                script {
+                    catchError(buildResult: 'UNSTABLE', message: 'Tests failed') {
+                        sh 'mvn test'
+                    }
+                }
+            }
+        }
+
+        stage('Publish Test Results') {
+            steps {
+                junit '*/target/surefire-reports/.xml'
+            }
+        }
+
+        stage('Publish Code Coverage') {
+            steps {
+                jacoco execPattern: '*/target/jacoco.exec', classPattern: '/target/classes', sourcePattern: '/src/main/java', exclusionPattern: '*/target/test-classes'
+            }
+        }
+
+        stage('Archive the build artifacts') {
+            steps {
+                archiveArtifacts artifacts: '*/.jar', allowEmptyArchive: true
             }
         }
     }
-}
 
-
-        stage('Code Coverage') {
-            steps {
-                sh "mvn jacoco:report"
-            }
-        }
-        stage('Archive'){
-            steps {
-                archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
-            }
+    post {
+        always {
+            echo 'Build completed.'
         }
     }
-
 }
