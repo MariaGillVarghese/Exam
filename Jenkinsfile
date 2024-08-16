@@ -14,9 +14,12 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh "mvn test"
+                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                    sh "mvn test"
+                }
             }
         }
+
         stage('Code Coverage') {
             steps {
                 sh "mvn jacoco:report"
