@@ -17,6 +17,11 @@ pipeline {
                 sh "mvn test"
             }
         }
+        stage('Code Coverage') {
+            steps {
+                sh "mvn jacoco:report"
+            }
+        }
         stage('Archive'){
             steps {
                 archiveArtifacts artifacts: '*.jar', allowEmptyArchive: true
