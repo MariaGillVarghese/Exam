@@ -13,12 +13,17 @@ pipeline {
             }
         }
         stage('Test') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                    sh "mvn test"
-                }
+    steps {
+        script {
+            // Catch errors in the test step and mark the build as UNSTABLE if any occur
+            catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                // Run the Maven tests
+                sh "mvn test"
             }
         }
+    }
+}
+
 
         stage('Code Coverage') {
             steps {
