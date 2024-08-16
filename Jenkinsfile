@@ -15,14 +15,17 @@ pipeline {
         stage('Test') {
     steps {
         script {
-            // Catch errors in the test step and mark the build as UNSTABLE if any occur
-            catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                // Run the Maven tests
-                sh "mvn test"
+            // Execute mvn test and capture the return status
+            def testStatus = sh(script: 'mvn test', returnStatus: true)
+            
+            // If the tests fail (exit code != 0), mark the build as UNSTABLE
+            if (testStatus != 0) {
+                currentBuild.result = 'UNSTABLE'
             }
         }
     }
 }
+
 
 
         stage('Code Coverage') {
